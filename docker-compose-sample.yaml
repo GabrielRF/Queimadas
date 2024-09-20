@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  queimadas:
+    build: .
+    environment:
+      URL: https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/10min/
+      FONTE: https://terrabrasilis.dpi.inpe.br/queimadas/portal/
+      TELEGRAM_TOKEN:
+      TELEGRAM_CHATS:
+      BLUESKY_USER:
+      BLUESKY_TOKEN:
+      HORAS: 6
+      ESTADO: Distrito Federal
+      MAPA_CENTRO: -15.7800,-47.796
+      MAPA_ZOOM: 11
+      MAPA_LARGURA: 1420
+      MAPA_ALTURA: 935
+      LIMITE_NORTE: -15.4658
+      LIMITE_SUL: -16.0834
+      LIMITE_LESTE: -47.2492
+      LIMITE_OESTE: -48.3658
