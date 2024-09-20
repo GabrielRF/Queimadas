@@ -13,15 +13,16 @@ import time
 
 URL = os.getenv('URL') 
 FONTE = os.getenv('FONTE')
+GEOLOCATOR_AGENT = os.getenv('GEOLOCATOR_AGENT', 'ScriptQueimadas')
 
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', False)
 TELEGRAM_CHATS = os.getenv('TELEGRAM_CHATS').split(',')
 
 BLUESKY_USER = os.getenv('BLUESKY_USER')
-BLUESKY_TOKEN = os.getenv('BLUESKY_TOKEN')
+BLUESKY_TOKEN = os.getenv('BLUESKY_TOKEN', False)
 
 HORAS = int(os.getenv('HORAS', 6))
-ESTADO = os.getenv('ESTADO')
+ESTADO = os.getenv('ESTADO', False)
 MAPA_CENTRO = os.getenv('MAPA_CENTRO').split(',')
 MAPA_ZOOM=int(os.getenv('MAPA_ZOOM', 10))
 MAPA_LARGURA=int(os.getenv('MAPA_LARGURA'))
@@ -124,7 +125,7 @@ def get_sat_color(sat):
     return cases.get(sat)
 
 def get_location(lat, lon):
-    geolocator = Nominatim(user_agent="Queimadas")
+    geolocator = Nominatim(user_agent=GEOLOCATOR_AGENT)
     try:
         location = geolocator.reverse(f'{lat},{lon}')
     except:
@@ -140,12 +141,12 @@ if __name__ == "__main__":
     send = False
     coordinates = []
     points = []
-    message_text = (
-        f'🔥 <b>Queimadas no DF!</b>\n'
-    )
-    bluesky_text = (
-        f'🔥 Queimadas no DF!'
-    )
+    if ESTADO:
+        message_text = (f'🔥 <b>Queimadas - {ESTADO}!</b>\n')
+        bluesky_text = (f'🔥 Queimadas - {ESTADO}!')
+    else:
+        message_text = (f'🔥 <b>Queimadas!</b>\n')
+        bluesky_text = (f'🔥 Queimadas!')
     print('Lendo os arquivos...')
     for csv in html.findAll('a', href=True)[-(10*HORAS):]:
         filename = csv['href']
@@ -164,14 +165,15 @@ if __name__ == "__main__":
                 lon = float(lon)
             except:
                 continue
-            if LIMITE_NORTE > lat > LIMITE_SUL:
-                if LIMITE_LESTE > lon > LIMITE_OESTE:
-                    name, state = get_location(lat, lon)
-                    if state != ESTADO:
-                        continue
+            if LIMITE_NORTE > float(lat) > LIMITE_SUL:
+                if LIMITE_LESTE > float(lon) > LIMITE_OESTE:
+                    if ESTADO:
+                        name, state = get_location(lat, lon)
+                        if state != ESTADO:
+                            continue
                     if not check_history(filename):
                         send = True
-                    print(f'Foco: {lat:.6f} {lon:.6f} {name}')
+                    print(f'Foco: {lat:.6f} {lon:.6f}')
                     satelite = satelite.split('-')[0]
                     satelite = satelite.split('_')[0]
                     try:
@@ -206,10 +208,12 @@ if __name__ == "__main__":
     if send:
         print('Gerando mapa...')
         map_file = create_map(coordinates, satelites)
-        print('Enviando para o Telegram')
-        send_message(message_text, map_file)
-        #print('Enviando para o Bluesky')
-        #send_bluesky(bluesky_text, map_file)
+        if TELEGRAM_TOKEN:
+            print('Enviando para o Telegram')
+            send_message(message_text, map_file)
+        if BLUESKY_TOKEN:
+            print('Enviando para o Bluesky')
+            send_bluesky(bluesky_text, map_file)
         send = False
     else:
         print('Nenhuma informação enviada.')

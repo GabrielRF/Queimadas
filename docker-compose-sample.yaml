@@ -5,6 +5,7 @@ services:
     environment:
       URL: https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/10min/
       FONTE: https://terrabrasilis.dpi.inpe.br/queimadas/portal/
+      GEOLOCATOR_AGENT:
       TELEGRAM_TOKEN:
       TELEGRAM_CHATS:
       BLUESKY_USER:
