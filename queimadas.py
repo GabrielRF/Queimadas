@@ -148,7 +148,7 @@ if __name__ == "__main__":
         message_text = (f'🔥 <b>Queimadas!</b>\n')
         bluesky_text = (f'🔥 Queimadas!')
     print('Lendo os arquivos...')
-    for csv in html.findAll('a', href=True)[-(10*HORAS):]:
+    for csv in html.findAll('a', href=True)[-(6*HORAS):]:
         filename = csv['href']
         if '.csv' not in filename:
             continue
